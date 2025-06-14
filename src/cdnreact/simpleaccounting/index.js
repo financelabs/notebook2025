@@ -1,4 +1,3 @@
-
 //import React, { useState, useCallback } from "react";
 let useState = React.useState;
 let useReducer = React.useReducer;
@@ -52,16 +51,11 @@ function LoginLogout() {
     let user = applicationSelector?.user;
     let email = applicationSelector?.email;
 
-
-
-    //    const handleClose = () => setShow(false);
-    //    const handleShow = () => setShow(true);
-
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        console.log(e.currentTarget.elements.formEmail.value);
-        console.log(e.currentTarget.elements.formUser.value);
+        // console.log(e.currentTarget.elements.formEmail.value);
+        // console.log(e.currentTarget.elements.formUser.value);
 
         basicfirebasecrudservices.saveState({
             application: {
@@ -73,15 +67,6 @@ function LoginLogout() {
             }
         });
 
-
-        //   dispatch({
-        //     type: "SET_STORE_OBJECT",
-        //     payload: { key: "email", value: e.currentTarget.elements.formEmail.value }
-        //   });
-        //   dispatch({
-        //     type: "SET_STORE_OBJECT",
-        //     payload: { key: "user", value: e.currentTarget.elements.formUser.value }
-        //   });
         setTimeout(() => window.location.reload(), 3000)
         //    handleClose();
     };
@@ -112,67 +97,18 @@ function LoginLogout() {
     </Form>
 
 
-    {/* (
-        <>
-        
-            <span onClick={handleShow} style={{ marginRight: "1rem" }}>
-                {user}
-            </span>
-
-           <Button variant="primary" onClick={handleShow}>
-          Launch demo modal
-        </Button> 
-
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Пользователь</Modal.Title>
-                </Modal.Header>
-                <Modal.Body> */}
-
-    {/*     </Modal.Body>
-                <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="primary" onClick={handleClose}>
-              Save Changes
-            </Button>
-          </Modal.Footer> *
-            </Modal> /}
-        </>
-    );*/}
 }
 
-function EditRecord() {
+function EditRecordType(id) {
     const [analyticsDimension, setAnalyticsDimension] = useState(null);
     const [analyticsItem, setAnalyticsItem] = useState(null);
     const projectDispatch = useContext(ProjectDispatchContext);
+    const applicationSelector = useContext(ApplicationContext);
+    const projectSelector = useContext(ProjectContext)
 
-
-
-    // let capitalIncrease,
-    //   capitalDecrease,
-    //   cashIncrease,
-    //   cashDecrease,
-    //   costsCalculation;
-
-    // if (k === "Нераспределенная прибыль") {
-    //   capitalIncrease = true;
-    // }
-    // if (d === "Нераспределенная прибыль") {
-    //   capitalDecrease = true;
-    // }
-
-    // if (d === "Деньги") {
-    //   cashIncrease = true;
-    // }
-    // if (k === "Деньги") {
-    //   cashDecrease = true;
-    // }
-
-    // if (d === "Незавершенное производство") {
-    //   costsCalculation = true;
-    // }
+    let record = projectSelector.content.find(item => item.id === id);
+    console.log(projectSelector.content);
+    console.log( applicationSelector?.modal?.item?.id)
 
     let analyticsArray = [
         { id: "capitalIncrease", name: "Увеличение чистых активов" },
@@ -220,7 +156,7 @@ function EditRecord() {
 
     function handleChange(e) {
         let { name, value } = e.target;
-        console.log(e.target);
+        //   console.log(e.target);
         if (name === "analyticsArray") { setAnalyticsDimension(analyticsArray.find(item => item.name === value).id) }
         //  if (name === "analyticsItem") { setAnalyticsItem(value) }
     }
@@ -230,6 +166,7 @@ function EditRecord() {
         const currentTarget = e.currentTarget;
         const formdata = new FormData(currentTarget);
         console.log(Object.fromEntries(formdata));
+        let analyticsItem = Object.fromEntries(formdata).analyticsItem;
         console.log(analyticsItem);
         // let { d, k, sum, bookD, bookK } = Object.fromEntries(formdata);
         // handleAdd({ d, k, sum, bookD, bookK });
@@ -239,12 +176,12 @@ function EditRecord() {
         //     currentTarget.reset();
         // });
         projectDispatch({
-            type: "UPDATE_ITEM_PROPERY_IN_ARRAY",
+            type: "UPDATE_ITEM_PROPERTY_IN_ARRAY",
             payload: {
                 arrayName: "xxx",
                 id: "xxx",
-                key: "xxx",
-                value: "xxx"
+                objKey: "type",
+                objValue: analyticsItem
             },
         });
 
@@ -255,6 +192,17 @@ function EditRecord() {
     return <Container>
 
         <Form onSubmit={handleSubmit}>
+            <Row>
+                <Col><small>{record?.id}</small> </Col>
+                <Col>{record?.bookD}</Col>
+                <Col>{record?.bookK}</Col>
+                <Col>{record?.sum}</Col>
+                <Col><small>{record?.type}</small></Col>
+                <Col><small>{record?.comment}</small></Col>
+            </Row>
+
+
+
             <Row>
 
                 <Col> {
@@ -307,33 +255,36 @@ function Ledger() {
     function deleteRecord(e) {
         console.log(e.target.id);
         dispatch({
-            type: "DELETE_FROM_ARRAY_BY_INDEX",
+            type: "DELETE_FROM_ARRAY_BY_ID",
             payload: {
                 arrayName: "content",
-                itemIndex: e.target.id
+                id: e.target.id
             }
         })
     }
 
-    function editRecord(e) {
+    function editType(e) {
         console.log(e.target.id);
-        //        console.log("ava");
-        applicationDispatch({
-            type: "SEED_STATE",
-            payload: {
-                objects: {
-                    showModal: true,
-                    modal: {
-                        title: "Проводка",
-                        component: "EditRecord"
-                    }
+        if (e.target.id.length > 5) {
+            applicationDispatch({
+                type: "SEED_STATE",
+                payload: {
+                    objects: {
+                        showModal: true,
+                        modal: {
+                            title: "Проводка",
+                            component: "EditRecordType",
+                            item: {
+                                id: e.target.id
+                            }
+                        }
+                    },
                 },
-            },
-        });
+            });
+        }
+
     }
 
-
-    console.log(projectSelector?.openLedger);
 
     return <Collapse key={projectSelector?.openLedger} in={projectSelector?.openLedger}>
         <div id="example-collapse-text">
@@ -348,13 +299,13 @@ function Ledger() {
                         <div>{row.bookK}</div>
                     </Col>
                     <Col>{row.sum}</Col>
-                    <Col><Button id={index} variant="outline-primary" size="sm" onClick={editRecord}>
+                    <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editType}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                             <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                         </svg>
                     </Button></Col>
-                    <Col><Button id={index} variant="outline-danger" size="sm" onClick={deleteRecord}>
+                    <Col><Button id={row.id} variant="outline-danger" size="sm" onClick={deleteRecord}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
                             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
                             <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
@@ -742,7 +693,9 @@ function GlobalModal() {
 
             {applicationSelector?.modal?.component === "LoginLogout" && <LoginLogout />}
 
-            {applicationSelector?.modal?.component === "EditRecord" && <EditRecord />}
+            {applicationSelector?.modal?.component === "EditRecordType" && <EditRecordType
+               
+            />}
 
         </Modal.Body>
         <Modal.Footer>
@@ -782,6 +735,13 @@ function caseReducer(state = {}, action) {
             });
         }
 
+        case "DELETE_FROM_ARRAY_BY_ID": {
+            return basicfirebasecrudservices.produce(state, (draft) => {
+                const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.id)
+                if (index !== -1) draft[action.payload.arrayName].splice(index, 1);
+            });
+        }
+
         case "UPDATE_ITEM_IN_ARRAY":
             return basicfirebasecrudservices.produce(state, (draft) => {
                 console.log(action.payload);
@@ -789,12 +749,18 @@ function caseReducer(state = {}, action) {
                 if (index !== -1) draft[action.payload.arrayName][index] = action.payload.item
             });
 
-         case "UPDATE_ITEM_PROPERY_IN_ARRAY":
+
+
+        case "UPDATE_ITEM_PROPERTY_IN_ARRAY":
             return basicfirebasecrudservices.produce(state, (draft) => {
                 console.log(action.payload);
-                const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.item.id);
-                if (index !== -1) draft[action.payload.arrayName][index] = action.payload.item
-            });    
+                const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.id);
+                if (index !== -1)
+                    draft
+                    [action.payload.arrayName]
+                    [index]
+                    [action.payload.objKey] = action.payload.objValue
+            });
 
         default:
             return state;
@@ -808,7 +774,8 @@ let initialState = {
     avatarUrl: "",
     userEmail: "",
     posts: [],
-    showModal: false
+    showModal: false,
+    modal: {}
 }
 
 
@@ -851,7 +818,8 @@ function App() {
             // let res = basicfirebasecrudservices.updateFirebaseNode(updates);
             // console.log(res);
 
-            let openquiz = typeof onlineopenquiz === 'object' && Object.keys(onlineopenquiz).length > 0 ? onlineopenquiz :
+            let openquiz = typeof onlineopenquiz === 'object' && Object.keys(onlineopenquiz).length > 0 ?
+                onlineopenquiz :
                 {
                     id: document.getElementById("simpleaccounting").dataset.openquizid,
                     title: "Задание от " + new Intl.DateTimeFormat("ru", {
@@ -877,17 +845,28 @@ function App() {
                     type: "object",
                 });
 
+                let openquizid = document.getElementById("simpleaccounting").dataset.openquizid;
+
                 let userprojectpostcontent = await basicfirebasecrudservices.getFirebaseNode({
-                    url: "/usersCraft/" + userEmail + "/posts/" + document.getElementById("simpleaccounting").dataset.openquizid + "/content",
+                    url: "/usersCraft/" + userEmail + "/posts/" + openquizid + "/content",
                     type: "array",
                 });
 
-                let posts = await basicfirebasecrudservices.getFirebaseNode({
-                    url: "/usersCraft/" + userEmail + "/posts/",
-                    type: "array",
-                });
+                userprojectpostcontent = userprojectpostcontent.map(item => {
+                    if (!item?.id) {
+                        return {
+                            ...item,
+                            id: basicfirebasecrudservices.getFirebaseNodeKey("/usersCraft/" + userEmail + "/posts/" + openquizid + "/content")
+                        }
+                    }
+                    return item
+                })
 
-                console.log(posts.filter(item => item.type === "accountingwithprofitscash"))
+                // let posts = await basicfirebasecrudservices.getFirebaseNode({
+                //     url: "/usersCraft/" + userEmail + "/posts/",
+                //     type: "array",
+                // });
+                // console.log(posts.filter(item => item.type === "accountingwithprofitscash"))
 
 
                 return {
