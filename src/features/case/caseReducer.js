@@ -4,6 +4,20 @@ function caseReducer(state = {}, action) {
   // console.log(action);
   switch (action.type) {
 
+    case "DELETE_FROM_ARRAY_BY_INDEX": {
+      return produce(state, (draft) => {
+        draft[action.payload.arrayName].splice(action.payload.itemIndex, 1);
+        draft.triggerRerender = action.payload.itemIndex;
+      });
+    }
+
+    case "DELETE_FROM_ARRAY_BY_ID": {
+      return produce(state, (draft) => {
+        const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.id)
+        if (index !== -1) draft[action.payload.arrayName].splice(index, 1);
+      });
+    }
+
     case "TOGGLE_PROPERTY":
       return produce(state, (draft) => {
         draft[action.payload.property] = !state[property];
@@ -14,7 +28,7 @@ function caseReducer(state = {}, action) {
         console.log(action.payload);
         draft[action.payload.key] = action.payload.value;
       });
-      
+
     case "SEED_STATE": {
       return produce(state, (draft) => {
         Object.keys(action.payload.objects).map((key) => {
@@ -67,7 +81,7 @@ function caseReducer(state = {}, action) {
         draft.formulaColumnIndex = action.payload.formulaColumnIndex;
       });
 
-  
+
 
     case "PUSH_ITEM_TO_ARRAY":
       return produce(state, (draft) => {
@@ -81,19 +95,19 @@ function caseReducer(state = {}, action) {
         if (index !== -1) draft[action.payload.arrayName].splice(index, 1)
       });
 
-      case "UPDATE_ITEM_IN_ARRAY":
-        return produce(state, (draft) => {
-          console.log(action.payload);
-          const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.item.id);
-          if (index !== -1) draft[action.payload.arrayName][index] = action.payload.item
-        });
+    case "UPDATE_ITEM_IN_ARRAY":
+      return produce(state, (draft) => {
+        console.log(action.payload);
+        const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.item.id);
+        if (index !== -1) draft[action.payload.arrayName][index] = action.payload.item
+      });
 
-         case "DELETE_FROM_ARRAY_BY_INDEX": {
-            return produce(state, (draft) => {
-               draft[action.payload.arrayName].splice(action.payload.itemIndex, 1);
-               draft.triggerRerender = action.payload.itemIndex;
-            });
-        }
+    case "DELETE_FROM_ARRAY_BY_INDEX": {
+      return produce(state, (draft) => {
+        draft[action.payload.arrayName].splice(action.payload.itemIndex, 1);
+        draft.triggerRerender = action.payload.itemIndex;
+      });
+    }
 
 
 
