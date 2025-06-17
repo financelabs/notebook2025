@@ -97,6 +97,83 @@ function LoginLogout() {
     </Form>
 }
 
+function EditRecordPeriod() {
+    const applicationSelector = useContext(ApplicationContext);
+    const projectSelector = useContext(ProjectContext);
+    const projectDispatch = useContext(ProjectDispatchContext);
+    let record = projectSelector.content.find(item => item.id === applicationSelector?.modal?.item?.id);
+    let orderInArray = projectSelector.content.findIndex(item => item.id === applicationSelector?.modal?.item?.id) + 1;
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const currentTarget = e.currentTarget;
+        const formdata = new FormData(currentTarget);
+        console.log(Object.fromEntries(formdata));
+        let period = Object.fromEntries(formdata).period;
+            console.log(period);
+            projectDispatch({
+                type: "UPDATE_ITEM_PROPERTY_IN_ARRAY",
+                payload: {
+                    arrayName: "content",
+                    id: record.id,
+                    objKey: "period",
+                    objValue: period
+                },
+            });
+    }
+
+    let periods = ["2022", "2023", "2024", "2025", "2026", "2027", "2028"]
+
+    return <Form onSubmit={handleSubmit}>
+        <Container>
+            <Row>
+                <Col><small>{"N " + orderInArray}</small> </Col>
+                <Col>{record?.bookD}</Col>
+                <Col>{record?.bookK}</Col>
+                <Col>{record?.sum}</Col>
+                <Col><div><small>{record?.type}</small></div>
+
+                </Col>
+            </Row>
+
+            <Row>
+                <Col>
+
+                    <Form.Group controlId="formStatePeriod">
+                        <Form.Label>Комментарий</Form.Label>
+                        <Form.Control as="select" name="period"  size="sm" required>
+                            {["...", ...periods]
+                                .map(item => {
+                                    return <option key={item} id={item}>
+                                        {item}
+                                    </option>
+                                })}
+                        </Form.Control>
+                    </Form.Group>
+                    {/*      <Form.Control    onChange={handleChange}  
+                        name="comment"
+                        type="textarea"
+                        rows="3"
+                    >
+                        {record?.comment}
+                    </Form.Control>   */}
+                </Col>
+            </Row>
+
+
+
+            <Row>
+                <Col>
+                    <Button variant="outline-secondary" size="sm" type="submit" >Сохранить</Button>
+                </Col>
+            </Row>
+
+        </Container>
+    </Form>
+
+
+}
+
 
 function EditRecordComment() {
     const applicationSelector = useContext(ApplicationContext);
@@ -363,6 +440,28 @@ function Ledger() {
         }
     }
 
+    function editPeriod(e) {
+        if (e.target.id.length > 5) {
+            applicationDispatch({
+                type: "SEED_STATE",
+                payload: {
+                    objects: {
+                        showModal: true,
+                        modal: {
+                            title: "Редактор Периода операции",
+                            component: "EditRecordPeriod",
+                            item: {
+                                id: e.target.id
+                            }
+                        }
+                    },
+                },
+            });
+        }
+    }
+
+
+
 
     function editComment(e) {
         if (e.target.id.length > 5) {
@@ -408,6 +507,7 @@ function Ledger() {
                             </Col>
                             <Col>{row.sum}</Col>
                             <Col><small class="text-muted">{row?.type}</small></Col>
+                            <Col><small class="text-muted">{row?.peripd}</small></Col>
                         </Row>
 
                         <Row>
@@ -428,6 +528,12 @@ function Ledger() {
                                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                     <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                                 </svg> {" comment"}
+                            </Button></Col>
+                            <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editPeriod}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                </svg> {" period"}
                             </Button></Col>
                             <Col><Button id={row.id} variant="outline-danger" size="sm" onClick={deleteRecord}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
@@ -847,6 +953,9 @@ function GlobalModal() {
 
             {applicationSelector?.modal?.component === "EditRecordComment" && <EditRecordComment />}
 
+            {applicationSelector?.modal?.component === "EditRecordPeriod" && <EditRecordPeriod />}
+
+
         </Modal.Body>
         <Modal.Footer>
             <Button variant="secondary" size="sm" onClick={handleClose}>
@@ -971,21 +1080,20 @@ function App() {
 
 
             let updates = {};
-            updates["/openquiz/propertyplantandequipment01"] = {
-                id: "propertyplantandequipment01",
-                title: "Учет основных средств 1",
+            updates["/openquiz/propertyplantandequipment03"] = {
+                id: "propertyplantandequipment03",
+                title: "Учет основных средств 3",
                 theme: "БФУ",
                 answer: "Операции и отчетность",
                 comment: "Операции и отчетность",
                 type: "accountingwithprofitscash",
                 tasks: [{
                     id: 0,
-                    text: `Организация купила оборудование в январе 2025 года и в этом же месяце ввела его в эксплуатацию.<br>
-             Стоимость оборудования 120 000 руб.(в том числе НДС 20 000 руб.). Получен акт приема-передачи и счет-фактура.<br>
-             Стоимость доставки – 24 000 руб. (в том числе НДС 4000 руб.) оплачена в январе, получен счет-фактура и акт.<br>
-            Оборудование относится к 5 амортизационной группе со сроком полезного использования 7-10 лет.<br>
-             Организация приняла решение об использовании оборудования в течение 10 лет. В том же месяце оборудование полностью оплачено.<br>
-            Указать бухгалтерские записи`
+                    text: `В соответствии с решением руководства организации объект ОС первоначальной стоимостью 100 000 руб., подлежит ликвидации в связи сморальным износом.<br>
+                    Срок полезного использования данного объекта ОС –5 лет. Объект находился в эксплуатации в течение 3-х лет, сумма начис-ленной амортизации за это время составляет 60 000 руб.<br>
+                    После разборки ОС на склад были оприходованы материалы стоимостью 20 000 руб.<br>
+                    Заработная плата рабочих, занятых в ликвидации ОС составляет10 000 руб., отчисления по социальному страхованию и обеспечению со-ставили 2 600 руб.<br>
+                    Указать бухгалтерские записи.`
                 }],
                 // hint: `<p>
                 // <a target="_blank"
