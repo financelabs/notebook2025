@@ -45,8 +45,6 @@ function ActiveCells() {
       });
     })}
   </div>
-
-
 }
 
 export default ActiveCells

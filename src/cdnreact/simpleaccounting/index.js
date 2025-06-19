@@ -25,8 +25,7 @@ let projectInitialState = {
     // type: "accountingwithprofitscash",
     content: [],
     deleted: false,
-    triggerRerender: null,
-    openLedger: false
+    triggerRerender: null,   
 };
 
 
@@ -110,16 +109,16 @@ function EditRecordPeriod() {
         const formdata = new FormData(currentTarget);
         console.log(Object.fromEntries(formdata));
         let period = Object.fromEntries(formdata).period;
-            console.log(period);
-            projectDispatch({
-                type: "UPDATE_ITEM_PROPERTY_IN_ARRAY",
-                payload: {
-                    arrayName: "content",
-                    id: record.id,
-                    objKey: "period",
-                    objValue: period
-                },
-            });
+        console.log(period);
+        projectDispatch({
+            type: "UPDATE_ITEM_PROPERTY_IN_ARRAY",
+            payload: {
+                arrayName: "content",
+                id: record.id,
+                objKey: "period",
+                objValue: period
+            },
+        });
     }
 
     let periods = ["2022", "2023", "2024", "2025", "2026", "2027", "2028"]
@@ -141,7 +140,7 @@ function EditRecordPeriod() {
 
                     <Form.Group controlId="formStatePeriod">
                         <Form.Label>Комментарий</Form.Label>
-                        <Form.Control as="select" name="period"  size="sm" required>
+                        <Form.Control as="select" name="period" size="sm" required>
                             {["...", ...periods]
                                 .map(item => {
                                     return <option key={item} id={item}>
@@ -149,18 +148,9 @@ function EditRecordPeriod() {
                                     </option>
                                 })}
                         </Form.Control>
-                    </Form.Group>
-                    {/*      <Form.Control    onChange={handleChange}  
-                        name="comment"
-                        type="textarea"
-                        rows="3"
-                    >
-                        {record?.comment}
-                    </Form.Control>   */}
+                    </Form.Group>                   
                 </Col>
             </Row>
-
-
 
             <Row>
                 <Col>
@@ -405,9 +395,12 @@ function EditRecordType() {
 }
 
 function Ledger() {
+    const [openLedger, setOpenLedger] = useState(false);
     const dispatch = useContext(ProjectDispatchContext);
     const applicationDispatch = useContext(ApplicationDispatchContext);
     const projectSelector = useContext(ProjectContext);
+
+    useEffect(()=>{},[projectSelector?.triggerRerender])
 
     function deleteRecord(e) {
         console.log(e.target.id);
@@ -483,31 +476,48 @@ function Ledger() {
         }
     }
 
-    let updateKey = "" + projectSelector?.openLedger + projectSelector?.triggerRerender
 
-    return <Collapse key={updateKey} in={projectSelector?.openLedger}>
-        <div id="example-collapse-text">
-            <Container>
+    return <Container >
+
+        <Button
+            onClick={() => setOpenLedger((openLedger) => { return !openLedger })}
+            aria-controls="example-collapse-text"
+            aria-expanded={openLedger}
+            variant="outline-secondary"
+            className="mb-3"
+        >
+            {openLedger ? "Скрыть Журнал" : "Показать журнал"}
+        </Button>
+
+        <Collapse in={openLedger}>
+            <div id="example-collapse-text">
+
                 {Array.isArray(projectSelector.content) && projectSelector.content.map((row, index) =>
 
                     <div key={index} className="border-bottom m-1">
 
                         <Row>
-                            <Col>
-                                <small class="text-muted">{index + 1}</small>
 
+                            <Col>
+                                <div><small class="text-muted">{"N " + (index + 1)}</small></div>
+                                <div><small class="text-muted">{row?.period}</small></div>
                             </Col>
+
                             <Col>
                                 <div><small class="text-muted">{row.d}</small></div>
                                 <div>{row.bookD}</div>
                             </Col>
+
                             <Col>
                                 <div><small class="text-muted">{row.k}</small></div>
                                 <div>{row.bookK}</div>
                             </Col>
-                            <Col>{row.sum}</Col>
-                            <Col><small class="text-muted">{row?.type}</small></Col>
-                            <Col><small class="text-muted">{row?.peripd}</small></Col>
+
+                            <Col><div>{row.sum}</div>
+                                <div><small class="text-muted">{row?.type}</small></div>
+                            </Col>
+
+
                         </Row>
 
                         <Row>
@@ -517,39 +527,45 @@ function Ledger() {
                         </Row>
 
                         <Row className="p-1">
-                            <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editType}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                                </svg> {" type"}
-                            </Button></Col>
-                            <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editComment}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                                </svg> {" comment"}
-                            </Button></Col>
                             <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editPeriod}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
                                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                                     <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
                                 </svg> {" period"}
                             </Button></Col>
+                           
+                            <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editComment}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                </svg> {" comment"}
+                            </Button></Col>
+                            
                             <Col><Button id={row.id} variant="outline-danger" size="sm" onClick={deleteRecord}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
                                     <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                 </svg>{" record"}</Button>
                             </Col>
+                             <Col><Button id={row.id} variant="outline-primary" size="sm" onClick={editType}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                </svg> {" type"}
+                            </Button></Col>
                         </Row>
 
                     </div>
 
                 )}
 
-            </Container>
-        </div>
-    </Collapse>
+
+            </div>
+        </Collapse>
+
+    </Container>
+
+
 
 }
 
@@ -616,13 +632,7 @@ function SimpleAccounting() {
     //     })
     // }
 
-    function setOpenLedger() {
-        console.log("Open Ledger")
-        dispatch({
-            type: "SET_STORE_OBJECT",
-            payload: { key: "openLedger", value: !projectSelector.openLedger }
-        });
-    }
+
 
 
     function processRecords(indicator) {
@@ -675,7 +685,7 @@ function SimpleAccounting() {
             </Row>
         </Container>
         <hr />
-        <Button
+        {/* <Button
             onClick={() => setOpenLedger()}
             aria-controls="example-collapse-text"
             aria-expanded={projectSelector.openLedger}
@@ -683,7 +693,7 @@ function SimpleAccounting() {
             className="mb-3"
         >
             {projectSelector.openLedger ? "Скрыть Журнал" : "Показать журнал"}
-        </Button>
+        </Button> */}
         <Ledger />
         <hr />
         <Container>{Array.isArray(projectSelector.tasks) && projectSelector.tasks.map(task => {
@@ -957,11 +967,11 @@ function GlobalModal() {
 
 
         </Modal.Body>
-        <Modal.Footer>
+        {/* <Modal.Footer>
             <Button variant="secondary" size="sm" onClick={handleClose}>
                 Close
             </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
     </Modal>
 }
 

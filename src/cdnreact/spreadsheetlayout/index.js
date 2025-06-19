@@ -12,17 +12,66 @@ let useContext = React.useContext;
  const SpreadsheetDispatchContext = createContext(null);
 
 let spreadsheetInitialState = {
-    content: [],
-    deleted: false,
-    triggerRerender: null,
-    openLedger: false
+
+  spreadsheetContent: {}, 
+
+  protoData: createProtoArray({}, 6, 6),
+  data: createNewDraft(createProtoArray({}, 6, 6)),
+  formulaValue: "", //createProtoArray(emptyProtoDataObject)[0][0],
+  formulaRowIndex: 0,
+  formulaColumnIndex: 0,
+  spreadsheetTitle: ''
 };
+
+
+function GreenHeader() {
+    let spreadsheetContext = useContext(SpreadsheetContext);
+    let { avatarUrl, title } = spreadsheetContext;
+    return <div className="excelstyle mt-1">
+        <div
+            className="title"
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: ".4rem",
+            }}
+        >
+            {avatarUrl && avatarUrl.length > 10 ? (
+                <img
+                    src={avatarUrl}
+                    alt=""
+                    style={{
+                        verticalAlign: "middle",
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "50%",
+                        filter: "grayscale(100%)",
+                        objectFit: "cover",
+                    }}
+                />
+            ) : null}
+
+            {!!title ? (
+                <span style={{ marginLeft: "1rem" }}>{title}</span>
+            ) : (
+                <span>Calc</span>
+            )}
+             {/* <LoginLogout />  */}
+        </div>
+    </div>
+}
+
+
+
 
 
 
 
 function SpreadsheetLayout() {
-  return <div>Spreadsheet Layout</div>
+  return <div className="container excel">
+    <GreenHeader />
+    <ActiveCells />
+  </div>
 }
 
 function SaveSpreadsheet() {
@@ -138,9 +187,7 @@ function SaveSpreadsheet() {
         });
     }
 
-    return <Navbar bg="light">
-        Save Spreadsheet
-    </Navbar>
+    return null
 }
 
 function GlobalModal() {
@@ -441,4 +488,408 @@ function App() {
 
 ReactDOM.createRoot(document.querySelector("#spreadsheet")).render(<App />);
 
+
+ function createProtoArray(protoDataObject={}, maxRow = 15, maxColumn = 6) {
+  Object.keys(protoDataObject).map((objKey) => {
+      const [col, ...row] = objKey;
+      let currentColIndex = alphabet.findIndex(item => item === col);
+      if (currentColIndex > maxColumn) { maxColumn = currentColIndex };
+      if (parseInt(row) > maxRow) { maxRow = parseInt(row) }
+  });
+//  console.log(maxColumn, maxRow);
+
+  var array = new Array(maxRow);
+  for (var i = 0; i < array.length; i++) {
+      array[i] = Array(maxColumn + 1).fill('');
+  }
+
+  Object.keys(protoDataObject).map((objKey) => {
+    const [col, ...row] = objKey;
+      let colArrayIndex = alphabet.findIndex((item) => item === col);
+      let rowArrayIndex = parseInt(row) - 1;
+      array[rowArrayIndex][colArrayIndex] = protoDataObject[objKey];
+  });
+  return array;
+}
+
+ function createProtoObject(protoArray) {
+  let protoObject = {};
+  for (var i = 0; i < protoArray.length; i++) {
+    var row = protoArray[i];
+    for (var j = 0; j < row.length; j++) {
+      if (protoArray[i][j] !== "") {
+        protoObject[alphabet[j] + (i+1)] = protoArray[i][j];
+      }
+    }
+  }
+  return protoObject;
+}
+
+function insert(arr, index, newItem) {
+  return [
+    // part of the array before the specified index
+    ...arr.slice(0, index),
+    // inserted item
+    newItem,
+    // part of the array after the specified index
+    ...arr.slice(index),
+  ];
+}
+
+
+
+function Cell({active, rowIndex, columnIndex }) {
+  const spreadsheetDispatch = useContext(SpreadsheetDispatchContext);
+  const spreadsheetSelector = useContext(SpreadsheetContext);
+
+  const data = spreadsheetSelector.data[rowIndex][columnIndex];
+  const proDataValue = spreadsheetSelector.protoData[rowIndex][columnIndex];
+
+  const [value, setValue] = useState(data);
+
+  useEffect(() => {
+    setValue(data);
+  }, [data]);
+
+  function onKeyPressOnInput(e) {
+    if (e.key === "Enter") {
+      let valueChecked = isNaN(value) ? (!!value ? value : "") : +value;
+
+      const newProtoData = basicfirebasecrudservices.produce(spreadsheetSelector.protoData, draft => {
+        draft[rowIndex][columnIndex] = valueChecked;
+      })
+
+      spreadsheetDispatch({
+        type: "SEED_STATE",
+        payload: { objects: {
+          data: createNewDraft(newProtoData),
+          spreadsheetContent: createProtoObject(newProtoData),
+          protoData: newProtoData,
+          formulaValue: valueChecked,
+          formulaRowIndex: rowIndex,
+          formulaColumnIndex: columnIndex
+        } }
+      })
+
+     
+    }
+  }
+
+  function clicked() {
+    spreadsheetDispatch({
+      type: "SEED_STATE",
+      payload: { objects: {
+        formulaValue: proDataValue,
+        formulaRowIndex: rowIndex,
+        formulaColumnIndex: columnIndex
+      } }
+    })
+
+   
+  }
+
+  return (
+    <input
+      type="text"
+      className={active ? "cells__input__active" : "cells__input"}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onClick={() => clicked()}
+      onKeyPress={(e) => onKeyPressOnInput(e)}
+    />
+  );
+}
+
+function ActiveCells() {
+  const spreadsheetSelector = useContext(SpreadsheetContext);
+  let { data, formulaRowIndex, formulaColumnIndex, expandView } = spreadsheetSelector;
+
+  let numberOfX = data[0].length - 1;
+  let numberOfY = data.length;
+
+  if (!expandView) return null;
+
+  return <div
+    className="cells"
+    style={{
+      gridTemplateColumns: `40px repeat(${numberOfX + 1
+        }, calc((100% - 50px) / ${numberOfX + 1}))`,
+      gridTemplateRows: `repeat(${numberOfY}, 25px)`,
+    }}
+  >
+    <div className="cells__spacer"></div>
+    <AlphabetRow x={numberOfX} />
+    <NumbersColumns y={numberOfY} />
+    {data.map((row, rowIndex) => {
+      return row.map((_, columnIndex) => {
+        return (
+          <Cell
+            key={"" + rowIndex + "_" + columnIndex}
+            rowIndex={rowIndex}
+            columnIndex={columnIndex}
+            active={
+              formulaRowIndex === rowIndex &&
+                formulaColumnIndex === columnIndex
+                ? true
+                : false
+            }
+          />
+        );
+      });
+    })}
+  </div>
+}
+
+function NumbersColumns({y}) {
+    
+    const numbersColumns = [];
+    for (let i = 1; i < y + 1; i += 1) {
+      numbersColumns.push(
+        <div key={i} className="cells__number">
+          {i}
+        </div>
+      );
+    }
+
+    return <React.Fragment>{numbersColumns}</React.Fragment>;
+  }
+
+function AlphabetRow({x}) {
+    const alphabetRow = [];
+    for (let i = 0; i < x + 1; i += 1) {
+      alphabetRow.push(
+        <div key={alphabet[i]} className="cells__alphabet">
+          {alphabet[i]}
+        </div>
+      );
+    }
+    return <React.Fragment>{alphabetRow}</React.Fragment>;
+  }
+
+
+const alphabet = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z"
+];
+
+function createNewDraft(data) {
+ //   console.log(data);
+ //    return calcData(data);
+     return calcDataWithImmer(data)
+}
+
+
+
+function calcDataWithImmer(data) {
+  //let newdata = JSON.parse(JSON.stringify(data));
+  //let formulas = [];
+
+  const newdata = basicfirebasecrudservices.produce(data, draft => {
+    let oneMoreLoop = true;
+    while (oneMoreLoop) {
+      oneMoreLoop = false;
+      for (let row = 0; row < draft.length; row++) {
+        for (let ix = 0; ix < draft[row].length; ix++) {
+          let cellValue = draft[row][ix];
+          //    console.log(cellValue);
+          if (
+            (typeof cellValue === "string" || cellValue instanceof String) &&
+            cellValue.toString().includes("=")
+          ) {
+  
+            let mapObj = {
+               СТЕПЕНЬ: "POWER",
+               ЧПС: "NPV",
+               ВСД: "IRR",
+               МВСД: "MIRR",
+               СУММ: "SUM",
+               СРЗНАЧ: "AVERAGE",
+               ОКРУГЛ: "ROUND",
+               СТАНДОТКЛОН: "STDEV"
+              };
+            let re = new RegExp(Object.keys(mapObj).join("|"), "gi");
+            cellValue = cellValue.replace(re, function (matched) {
+              return mapObj[matched];
+            });
+  
+            let result = calculateFormula(draft, cellValue.slice(1));
+            //       formulas.push({ formula: cellValue, result: result })
+            if (result.later) {
+              draft[row][ix] = cellValue;
+              oneMoreLoop = true;
+            } else {
+              draft[row][ix] = result.res.result;
+            }
+          } else draft[row][ix] = cellValue;
+        }
+      }
+    }
+//    draft["id1"].done = true
+})
+  // console.log(newdata);
+  return newdata;
+}
+
+
+// function calcData(data) {
+//     let newdata = JSON.parse(JSON.stringify(data));
+//     //let formulas = [];
+  
+//     let oneMoreLoop = true;
+//     while (oneMoreLoop) {
+//       oneMoreLoop = false;
+//       for (let row = 0; row < newdata.length; row++) {
+//         for (let ix = 0; ix < newdata[row].length; ix++) {
+//           let cellValue = newdata[row][ix];
+//           //    console.log(cellValue);
+//           if (
+//             (typeof cellValue === "string" || cellValue instanceof String) &&
+//             cellValue.toString().includes("=")
+//           ) {
+  
+//             let mapObj = {
+//                СТЕПЕНЬ: "POWER",
+//                ЧПС: "NPV",
+//                ВСД: "IRR",
+//                МВСД: "MIRR",
+//                СУММ: "SUM",
+//                СРЗНАЧ: "AVERAGE",
+//                ОКРУГЛ: "ROUND",
+//                СТАНДОТКЛОН: "STDEV"
+//               };
+//             let re = new RegExp(Object.keys(mapObj).join("|"), "gi");
+//             cellValue = cellValue.replace(re, function (matched) {
+//               return mapObj[matched];
+//             });
+  
+//             let result = calculateFormula(newdata, cellValue.slice(1));
+//             //       formulas.push({ formula: cellValue, result: result })
+//             if (result.later) {
+//               newdata[row][ix] = cellValue;
+//               oneMoreLoop = true;
+//             } else {
+//               newdata[row][ix] = result.res.result;
+//             }
+//           } else newdata[row][ix] = cellValue;
+//         }
+//       }
+//     }
+//     // console.log(newdata);
+//     return newdata;
+//   }
+  
+  function calculateFormula(data, formula) {
+    let parser = new formulaParser.Parser();
+   // let parser = new FormulaParser.Parser();
+  
+    let dependencies = [];
+  
+//     console.log(data, formula);
+  
+    parser.on("callCellValue", (cellCoord, done) => {
+      const x = cellCoord.column.index + 1;
+      const y = cellCoord.row.index + 1;
+  
+      dependencies.push({ x: x, y: y });
+  
+      // if (data[y - 1][x - 1].toString().slice(0, 1) === "=") {
+      //   return done(parseFloat(calculateFormula(data[y - 1][x - 1].toString().slice(1))));
+      // }
+  
+      if (!data[y - 1] || !data[y - 1][x - 1]) {
+        return done("");
+      }
+      //  console.log(y - 1, x - 1);
+      done(data[y - 1][x - 1]);
+    });
+  
+    parser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
+      var fragment = [];
+  
+      for (
+        var row = startCellCoord.row.index;
+        row <= endCellCoord.row.index;
+        row++
+      ) {
+        var rowData = data[row];
+        var colFragment = [];
+  
+        for (
+          var col = startCellCoord.column.index;
+          col <= endCellCoord.column.index;
+          col++
+        ) {
+          var value = rowData[col];
+  
+          dependencies.push({ x: col, y: row });
+  
+          colFragment.push(value);
+        }
+        fragment.push(colFragment);
+      }
+  
+      // console.log(fragment);
+  
+      if (fragment) {
+        done(fragment);
+      }
+    });
+  
+    let resultObj = parser.parse(formula);
+  
+    // console.log('formula: ' + formula);
+    let later = false;
+    let dependendentOn = [];
+    dependencies.forEach(item => {
+      let cellValue = null;
+      try {
+        cellValue = data[item.y - 1][item.x - 1];
+        //   console.log(cellValue);
+        dependendentOn.push(cellValue);
+      } catch {
+        //      console.log(formula);
+      }
+  
+      if (
+        (typeof cellValue === "string" || cellValue instanceof String) &&
+        cellValue.toString().includes("=")
+      ) {
+        later = true;
+      }
+    });
+    // console.log('dependendentOn: ' + dependendentOn);
+    // console.log('---------');
+  
+    return {
+      res: resultObj,
+      dependencies: dependencies,
+      later: later,
+      dependendentOn: dependendentOn
+    };
+  }
+  
 

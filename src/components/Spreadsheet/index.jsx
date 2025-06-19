@@ -11,6 +11,8 @@ import GreenHeader from './GreenHeader';
 import IconBar from './IconBar';
 import ActiveCells from './ActiveCells';
 
+
+
 let initialState = {
   loading: true,
   email: null,
@@ -18,9 +20,7 @@ let initialState = {
   avatarUrl: "",
   userEmail: "",
 
-  spreadsheetContent: {},
-
- 
+  spreadsheetContent: {}, 
 
   protoData: createProtoArray({}, 6, 6),
   data: createNewDraft(createProtoArray({}, 6, 6)),
