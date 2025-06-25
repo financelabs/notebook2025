@@ -4,7 +4,7 @@ let useEffect = React.useEffect;
 let createContext = React.createContext;
 let useContext = React.useContext;
 
-let { Container, Row, Col, Form, Button, ButtonGroup, Navbar, Modal } = ReactBootstrap;
+let { Container, Row, Col, Form, Button, ButtonGroup, Navbar, Modal, InputGroup, FormControl } = ReactBootstrap;
 
 const ApplicationContext = createContext(null);
 const ApplicationDispatchContext = createContext(null);
@@ -22,30 +22,115 @@ let spreadsheetInitialState = {
   formulaRowIndex: 0,
   formulaColumnIndex: 0,
   spreadsheetTitle: '',
-  title: "Задача"
+  countLetter: 0,
+  title: "Задача",
 };
 
-function IconBar({quizString, title, answer, theme, answerIsRight}) {
-    let spreadsheetSelector = useContext(SpreadsheetContext);
-     let applicationSelector = useContext(ApplicationContext);
+function CompactActiveCell({ cellAddress = "A1", cellCalculatedData = "4" }) {
+   let spreadsheetDispatch = useContext(SpreadsheetDispatchContext)
+  let spreadsheetSelector = useContext(SpreadsheetContext);
+
+  function setValue(value) {
+    console.log(value);
+
+    let valueChecked = isNaN(value)
+      ? !!value
+        ? value.trim()
+        : ""
+      : +value;
+
+    let newSpreadsheetContent = basicfirebasecrudservices.produce(
+      spreadsheetSelector.spreadsheetContent, (draft) => {
+        //    console.log(action.payload);
+        draft[cellAddress] = valueChecked;
+      });
+
+    let newProtoData = createProtoArray(newSpreadsheetContent, 6, 6)
+    let newData = createNewDraft(newProtoData);
+    spreadsheetDispatch({
+      type: "SEED_STATE",
+      payload: {
+        objects: {
+          spreadsheetContent: createProtoObject(newProtoData),
+          protoData: newProtoData,
+          data: newData
+        }
+      }
+    })
+  }
+
+  return <InputGroup className="mb-3">
+    <InputGroup.Prepend>
+      <InputGroup.Text id={cellAddress}>
+        <small>{cellAddress + " " + spreadsheetSelector.spreadsheetContent?.[cellAddress]} </small>
+      </InputGroup.Text>
+    </InputGroup.Prepend>
+    <FormControl
+      placeholder={cellCalculatedData}
+      aria-label="Username"
+      aria-describedby={cellAddress}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  </InputGroup>
+
+
+}
+
+function CompactActiveCells() {
+   let spreadsheetSelector = useContext(SpreadsheetContext);
+
+  // let rows = spreadsheetSelector.data[0].length;
+
+  let letter = alphabet[spreadsheetSelector.countLetter];
+
+  return <div>
+    {[1,2,3,4].map(item => {
+      return  <CompactActiveCell cellAddress={letter + item}/>
+    })}
+  
+
+  </div>
+
+}
+
+function CompactSpreadsheetLayout({ screenSize }) {
+  const [countRow, setCountRow] = useState(7);
+  let spreadsheetSelector = useContext(SpreadsheetContext);
+
+  let { expandView } = spreadsheetSelector;
+
+  return <div className="excelstyle">
+    <GreenHeader />
+
+    {expandView ? <CompactActiveCells
+      //    userProfile={userProfile}
+      //     currentLetter={alphabet[countLetter]}
+      numberOfRows={countRow}
+    /> : null}
+  </div>
+}
+
+function IconBar({ quizString, title, answer, theme, answerIsRight }) {
+  let spreadsheetSelector = useContext(SpreadsheetContext);
+  let applicationSelector = useContext(ApplicationContext);
   let spreadsheetDispatch = useContext(SpreadsheetDispatchContext)
 
-  let { expandView} = spreadsheetSelector;
-  let { email} = applicationSelector;
+  let { expandView } = spreadsheetSelector;
+  let { email } = applicationSelector;
 
   function toggleExpandView() {
     console.log("toggleExpandView")
   }
 
-   function new_empty_spreadsheet() {
+  function new_empty_spreadsheet() {
     console.log("new_empty_spreadsheet")
   }
 
-   function toggleExpandView() {
+  function toggleExpandView() {
     console.log("toggleExpandView")
   }
 
-   function add_row_under() {
+  function add_row_under() {
     console.log("add_row_under")
   }
 
@@ -53,106 +138,106 @@ function IconBar({quizString, title, answer, theme, answerIsRight}) {
 
 
 
- //   const dispatch = useDispatch();
-    
-    return <div className="icon-bar">
-      {!!email ? (
-        <PostsButtonGroup
-          expandView={expandView}
-          toggle_expand_view={toggleExpandView()}
-          quizString={quizString}
-          title={title}
-          answer={answer}
-          theme={theme}
-          answerIsRight={answerIsRight}
-        />
-      ) : (
-        <ButtonGroup aria-label="Posts Buttons" size="sm">
-          <Button
-            variant="outline-secondary"
-            onClick={() => new_empty_spreadsheet()}
-            data-toggle="tooltip"
-            data-placement="bottom"
-            title="Новый расчет"
-          >
-            Нов
-          </Button>
-          <Button
-            variant="outline-secondary"
-            onClick={() => toggleExpandView()}
-            data-toggle="tooltip"
-            data-placement="bottom"
-            title={expandView ? "Свернуть расчет" : "Развернуть расчет"}
-          >
-            {expandView ? "Сверн" : "Разв"}
-          </Button>
-        </ButtonGroup>
-      )}
+  //   const dispatch = useDispatch();
 
-      <ButtonGroup aria-label="Rows Buttons" size="sm">
+  return <div className="icon-bar">
+    {!!email ? (
+      <PostsButtonGroup
+        expandView={expandView}
+        toggle_expand_view={toggleExpandView()}
+        quizString={quizString}
+        title={title}
+        answer={answer}
+        theme={theme}
+        answerIsRight={answerIsRight}
+      />
+    ) : (
+      <ButtonGroup aria-label="Posts Buttons" size="sm">
         <Button
           variant="outline-secondary"
+          onClick={() => new_empty_spreadsheet()}
           data-toggle="tooltip"
           data-placement="bottom"
-          title="Добавить строку ниже"
-          onClick={() => add_row_under()}
+          title="Новый расчет"
         >
-          +_
+          Нов
         </Button>
         <Button
           variant="outline-secondary"
+          onClick={() => toggleExpandView()}
           data-toggle="tooltip"
           data-placement="bottom"
-          title="Добавить строку выше"
-          onClick={() => add_row_before()}
+          title={expandView ? "Свернуть расчет" : "Развернуть расчет"}
         >
-          +-
-        </Button>
-        <Button
-          variant="outline-secondary"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Удалить эту строку"
-          onClick={() => delete_row()}
-        >
-          x-
+          {expandView ? "Сверн" : "Разв"}
         </Button>
       </ButtonGroup>
+    )}
 
-      <ButtonGroup aria-label="Columns Buttons" size="sm">
-        <Button
-          variant="outline-secondary"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Добавить колонку справа"
-          onClick={() => add_column_after()}
-        >
-          +|
-        </Button>
-        <Button
-          variant="outline-secondary"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Добавить колонку слева"
-          onClick={() => add_column_before()}
-        >
-          |+
-        </Button>
-        <Button
-          variant="outline-secondary"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Удалить эту колонку"
-          onClick={() => delete_column()}
-        >
-          x|
-        </Button>
-      </ButtonGroup>
+    <ButtonGroup aria-label="Rows Buttons" size="sm">
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Добавить строку ниже"
+        onClick={() => add_row_under()}
+      >
+        +_
+      </Button>
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Добавить строку выше"
+        onClick={() => add_row_before()}
+      >
+        +-
+      </Button>
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Удалить эту строку"
+        onClick={() => delete_row()}
+      >
+        x-
+      </Button>
+    </ButtonGroup>
 
-      {!!email ? (
-        <ButtonGroup aria-label="Workbook Buttons" size="sm">
+    <ButtonGroup aria-label="Columns Buttons" size="sm">
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Добавить колонку справа"
+        onClick={() => add_column_after()}
+      >
+        +|
+      </Button>
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Добавить колонку слева"
+        onClick={() => add_column_before()}
+      >
+        |+
+      </Button>
+      <Button
+        variant="outline-secondary"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Удалить эту колонку"
+        onClick={() => delete_column()}
+      >
+        x|
+      </Button>
+    </ButtonGroup>
 
-<Button
+    {!!email ? (
+      <ButtonGroup aria-label="Workbook Buttons" size="sm">
+
+        <Button
           variant="outline-secondary"
           data-toggle="tooltip"
           data-placement="bottom"
@@ -163,10 +248,10 @@ function IconBar({quizString, title, answer, theme, answerIsRight}) {
           </a>
         </Button>
 
-        
-        </ButtonGroup>
-      ) : null}
-    </div>
+
+      </ButtonGroup>
+    ) : null}
+  </div>
 }
 
 function FormulaBlock() {
@@ -203,12 +288,12 @@ function FormulaBlock() {
 
     let newProtoData = basicfirebasecrudservices.produce(
       spreadsheetSelector.protoData, (draft) => {
-    //    console.log(action.payload);
+        //    console.log(action.payload);
         draft[formulaRowIndex][formulaColumnIndex] = valueChecked;
       })
 
-    let newData = createNewDraft(newProtoData);  
-      
+    let newData = createNewDraft(newProtoData);
+
     //   JSON.parse(JSON.stringify(state.protoData));
     // newProtoData[action.payload.rowIndex][action.payload.columnIndex] = action.payload.value;
     // state.data = createNewDraft(newProtoData);
@@ -219,7 +304,8 @@ function FormulaBlock() {
       payload: {
         objects: {
           protoData: newProtoData,
-          data: newData
+          data: newData,
+          spreadsheetContent: createProtoObject(newProtoData),
         },
       },
     });
@@ -343,9 +429,10 @@ function GreenHeader() {
 
 function SpreadsheetLayout() {
   return <div className="container excel">
-    <GreenHeader />
+    <CompactSpreadsheetLayout />
+    {/* <GreenHeader />
      <FormulaBlock />
-    <ActiveCells />
+    <ActiveCells /> */}
   </div>
 }
 
