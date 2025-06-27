@@ -26,9 +26,17 @@ let spreadsheetInitialState = {
   title: "Задача",
 };
 
-function CompactActiveCell({ cellAddress = "A1", cellCalculatedData = "4" }) {
-   let spreadsheetDispatch = useContext(SpreadsheetDispatchContext)
+function CompactActiveCell({ rowIndex = 0 }) {
+  let spreadsheetDispatch = useContext(SpreadsheetDispatchContext)
   let spreadsheetSelector = useContext(SpreadsheetContext);
+
+  const calculatedDataValue = spreadsheetSelector.data
+  [rowIndex]
+  [spreadsheetSelector.countLetter];
+
+  console.log(calculatedDataValue);
+  let cellAddress = (alphabet[spreadsheetSelector.countLetter] + (rowIndex + 1))
+
 
   function setValue(value) {
     console.log(value);
@@ -47,6 +55,7 @@ function CompactActiveCell({ cellAddress = "A1", cellCalculatedData = "4" }) {
 
     let newProtoData = createProtoArray(newSpreadsheetContent, 6, 6)
     let newData = createNewDraft(newProtoData);
+
     spreadsheetDispatch({
       type: "SEED_STATE",
       payload: {
@@ -59,38 +68,34 @@ function CompactActiveCell({ cellAddress = "A1", cellCalculatedData = "4" }) {
     })
   }
 
-  return <InputGroup className="mb-3">
+  let dataValue = isNumeric(calculatedDataValue) ?
+    calculatedDataValue : "";
+
+  return <InputGroup className="my-1">
     <InputGroup.Prepend>
       <InputGroup.Text id={cellAddress}>
-        <small>{cellAddress + " " + spreadsheetSelector.spreadsheetContent?.[cellAddress]} </small>
+        <small>{cellAddress + " " + dataValue}</small>
       </InputGroup.Text>
     </InputGroup.Prepend>
     <FormControl
-      placeholder={cellCalculatedData}
-      aria-label="Username"
+      placeholder={calculatedDataValue}
+      aria-label={cellAddress}
       aria-describedby={cellAddress}
       onChange={(e) => setValue(e.target.value)}
     />
   </InputGroup>
-
-
 }
 
 function CompactActiveCells() {
-   let spreadsheetSelector = useContext(SpreadsheetContext);
-
-  // let rows = spreadsheetSelector.data[0].length;
-
+  let spreadsheetSelector = useContext(SpreadsheetContext);
   let letter = alphabet[spreadsheetSelector.countLetter];
-
+  let arrayOfRows =  Array.from({ length: spreadsheetSelector.data.length }, (_, i) => i + 1);
+//  console.log(arrayOfRows);
   return <div>
-    {[1,2,3,4].map(item => {
-      return  <CompactActiveCell cellAddress={letter + item}/>
+    {arrayOfRows.map((item, index) => {
+      return <CompactActiveCell cellAddress={letter + item} rowIndex={index} />
     })}
-  
-
   </div>
-
 }
 
 function CompactSpreadsheetLayout({ screenSize }) {
@@ -887,6 +892,12 @@ function createProtoObject(protoArray) {
   return protoObject;
 }
 
+function isNumeric(str) {
+  return !isNaN(str) && !isNaN(parseFloat(str));
+}
+
+
+
 function insert(arr, index, newItem) {
   return [
     // part of the array before the specified index
@@ -1121,52 +1132,7 @@ function calcDataWithImmer(data) {
 }
 
 
-// function calcData(data) {
-//     let newdata = JSON.parse(JSON.stringify(data));
-//     //let formulas = [];
 
-//     let oneMoreLoop = true;
-//     while (oneMoreLoop) {
-//       oneMoreLoop = false;
-//       for (let row = 0; row < newdata.length; row++) {
-//         for (let ix = 0; ix < newdata[row].length; ix++) {
-//           let cellValue = newdata[row][ix];
-//           //    console.log(cellValue);
-//           if (
-//             (typeof cellValue === "string" || cellValue instanceof String) &&
-//             cellValue.toString().includes("=")
-//           ) {
-
-//             let mapObj = {
-//                СТЕПЕНЬ: "POWER",
-//                ЧПС: "NPV",
-//                ВСД: "IRR",
-//                МВСД: "MIRR",
-//                СУММ: "SUM",
-//                СРЗНАЧ: "AVERAGE",
-//                ОКРУГЛ: "ROUND",
-//                СТАНДОТКЛОН: "STDEV"
-//               };
-//             let re = new RegExp(Object.keys(mapObj).join("|"), "gi");
-//             cellValue = cellValue.replace(re, function (matched) {
-//               return mapObj[matched];
-//             });
-
-//             let result = calculateFormula(newdata, cellValue.slice(1));
-//             //       formulas.push({ formula: cellValue, result: result })
-//             if (result.later) {
-//               newdata[row][ix] = cellValue;
-//               oneMoreLoop = true;
-//             } else {
-//               newdata[row][ix] = result.res.result;
-//             }
-//           } else newdata[row][ix] = cellValue;
-//         }
-//       }
-//     }
-//     // console.log(newdata);
-//     return newdata;
-//   }
 
 function LoginLogout() {
   const applicationSelector = useContext(ApplicationContext);
