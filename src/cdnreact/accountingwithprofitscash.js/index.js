@@ -283,15 +283,7 @@ function ShowBalance() {
         });
 
         let indctr = balanceContoArray.find(item => item.id === indicator)
-        if (
-            indctr.disposition === "asset"
-            // indicator === "Основные средства" ||
-            // indicator === "Материалы" ||
-            // indicator === "Незавершенное производство" ||
-            // indicator === "Готовая продукция" ||
-            // indicator === "Дебиторская задолженность" ||
-            // indicator === "Деньги"
-        ) {
+        if (indctr.disposition === "asset") {
             return DValues - KValues;
         } else {
             return KValues - DValues;

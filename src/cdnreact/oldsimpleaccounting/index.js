@@ -862,15 +862,17 @@ function ProjectOptionsNavigation() {
                 Счт
             </Button></Col>
 
-{/* 
+
             <Col> <Button
                 onClick={() => setOpenFunction("openDnd")}
+                //     aria-controls="example-collapse-text"
+                //     aria-expanded={openLedger}
                 variant={editorMode.openDnd ? "secondary" : "outline-secondary"}
                 className="mb-3"
                 size="sm"
             >
                 Прдк
-            </Button></Col> */}
+            </Button></Col>
 
 
 
@@ -930,7 +932,7 @@ function ProjectOptionsNavigation() {
             >
                 Рсчт
             </Button></Col>
-            {/* <Col> <Button
+            <Col> <Button
                 onClick={() => setOpenFunction("openCheatsheet")}
                 //    aria-controls="example-collapse-text"
                 //    aria-expanded={openLedger}
@@ -939,7 +941,7 @@ function ProjectOptionsNavigation() {
                 size="sm"
             >
                 Шблн
-            </Button></Col> */}
+            </Button></Col>
         </Row>
 
         <Row>
@@ -952,7 +954,7 @@ function ProjectOptionsNavigation() {
             {editorMode.openCashFlow && <ShowCashFlow />}
             {editorMode.openFilteredList && <ShowFilteredList />}
             {editorMode.openContoByDate && <ContoByDate />}
-         {/*    {editorMode.openDnd && <RecordDragAndDrop />} */}
+            {editorMode.openDnd && <RecordDragAndDrop />}
         </Row>
     </Container>
 }
@@ -1793,8 +1795,7 @@ function App() {
                     });
                 }
 
-                let userprojectpostcontent = !!userprojectpostcontentobject ?
-                 Object.keys(userprojectpostcontentobject).map(objKey => userprojectpostcontentobject[objKey]): [];
+                let userprojectpostcontent = Object.keys(userprojectpostcontentobject).map(objKey => userprojectpostcontentobject[objKey])
 
                 let periods = [...new Set(userprojectpostcontent.map(item => item.period))];
                 let content = [];
@@ -2860,8 +2861,6 @@ function RecordDragAndDrop() {
     const applicationDispatch = useContext(ApplicationDispatchContext);
     const projectDispatch = useContext(ProjectDispatchContext);
     const projectSelector = useContext(ProjectContext);
-
-    return null
 
     let projectItems = Array.isArray(projectSelector.content) ?
         projectSelector.content.map(item => {
