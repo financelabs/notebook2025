@@ -862,7 +862,7 @@ function ProjectOptionsNavigation() {
                 Счт
             </Button></Col>
 
-{/* 
+            {/* 
             <Col> <Button
                 onClick={() => setOpenFunction("openDnd")}
                 variant={editorMode.openDnd ? "secondary" : "outline-secondary"}
@@ -952,7 +952,7 @@ function ProjectOptionsNavigation() {
             {editorMode.openCashFlow && <ShowCashFlow />}
             {editorMode.openFilteredList && <ShowFilteredList />}
             {editorMode.openContoByDate && <ContoByDate />}
-         {/*    {editorMode.openDnd && <RecordDragAndDrop />} */}
+            {/*    {editorMode.openDnd && <RecordDragAndDrop />} */}
         </Row>
     </Container>
 }
@@ -1129,15 +1129,15 @@ function SimpleAccounting() {
 
     // const handleAdd = useCallback(({ d, k, sum }) => {
     function handleAdd({ d, k, sum, bookD, bookK, period }) {
-        //  let records = project.content;
+        let content = [...projectSelector.content, { d, k, sum, bookD, bookK, period }];
         projectDispatch({
             type: "SEED_STATE",
             payload: {
                 objects: {
-                    content: [...projectSelector.content, { d, k, sum, bookD, bookK, period }],
+                    content,
                     triggerRerender: Math.random(),
                     triggerSave: Math.random(),
-                    saveOptions: { type: "content" }
+                    saveOptions: { type: content.length === 1 ? "saveproject" : "content" }
                 },
             },
         });
@@ -1311,57 +1311,12 @@ function SaveProject() {
 
         async function saveContent() {
 
+            let updates = {};
             console.log(saveOptions);
-
-            if (saveOptions?.type === "projectnodes" && Array.isArray(saveOptions?.updatednodes) && saveOptions.updatednodes.length > 0) {
-
-                let updates = {};
-
-                saveOptions.updatednodes.forEach(item => {
-                    console.log(item);
-                    updates["/usersCraft/" + userEmail + "/posts/" + id + "/" + item.relativeurl] = item.nodeobject;
-                    updates["/usersTemplates/projects/" + userEmail + "/" + id + "/" + item.relativeurl] = item.nodeobject;
-                });
-
-                // updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                // updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                //   console.log(updates);
-                //  console.log(updates)
-                return await basicfirebasecrudservices.updateFirebaseNode(updates);
-            }
-
-
-            let contentObj = {};
-
-            if (saveOptions?.type === "content" && Array.isArray(content) && content.length > 0) {
-                content = content.forEach(item => {
-                    if (!item?.period) { return { ...item, period: defaultPeriod } }
-                    if (item?.id) { contentObj[id] = item }
-
-                });
-
-
-                let updates = {};
-                updates["/usersCraft/" + userEmail + "/posts/" + id + "/content"] = contentObj;
-                updates[
-                    "/usersTemplates/projects/" + userEmail + "/" + id + "/content"] = contentObj;
-                updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                //   console.log(updates);
-                console.log("Saved")
-                return await basicfirebasecrudservices.updateFirebaseNode(updates);
-            }
-
-
             let filteredMediaItemsWithoutComment = mediaItems.filter(item => item?.comment !== "Комментарий");
             let filteredMediaItemsWithoutCalculations = filteredMediaItemsWithoutComment.filter(item => item?.comment !== "Расчет");
-            //    console.log(filteredMediaItemsWithoutCalculations);
-
             let comment = "";
-            tasks.map(task => {
-                comment += task.text;
-            })
-
+            tasks.map(task => { comment += task.text })
             let mediaItemsForSaving = [
                 { mediaType: "html", comment: "Задание", content: comment },
                 {
@@ -1372,84 +1327,104 @@ function SaveProject() {
                 ...filteredMediaItemsWithoutCalculations
             ];
 
-            if (saveOptions?.type === "spreadsheet") {
-                let updates = {};
-                updates["/usersCraft/" + userEmail + "/posts/" + id + "/mediaItems"] = mediaItemsForSaving;
-                updates[
-                    "/usersTemplates/projects/" + userEmail + "/" + id + "/mediaItems"] = mediaItemsForSaving;
-                // updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                // updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
-                //  console.log(updates);
-                return await basicfirebasecrudservices.updateFirebaseNode(updates);
+            switch (saveOptions?.type) {
+
+                case "projectnodes":
+                    console.log("projectnodes");
+                    if (Array.isArray(saveOptions?.updatednodes) && saveOptions.updatednodes.length > 0) {
+                        saveOptions.updatednodes.forEach(item => {
+                            updates["/usersCraft/" + userEmail + "/posts/" + id + "/" + item.relativeurl] = item.nodeobject;
+                            updates["/usersTemplates/projects/" + userEmail + "/" + id + "/" + item.relativeurl] = item.nodeobject;
+                        });
+                        // updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                        // updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                    }
+                    break; // Optional, but recommended to prevent fall-through
+
+                case "content":
+                    console.log("content");
+                    let contentObj = {};
+                    if (Array.isArray(content) && content.length > 0) {
+                        content = content.forEach(item => {
+                            if (!item?.period) { return { ...item, period: defaultPeriod } }
+                            if (item?.id) { contentObj[id] = item }
+                        });
+                        updates["/usersCraft/" + userEmail + "/posts/" + id + "/content"] = contentObj;
+                        updates["/usersTemplates/projects/" + userEmail + "/" + id + "/content"] = contentObj;
+                        updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                        updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                    }
+                    break;
+
+                case "spreadsheet":
+                    console.log("spreadsheet");
+
+                    updates["/usersCraft/" + userEmail + "/posts/" + id + "/mediaItems"] = mediaItemsForSaving;
+                    updates["/usersTemplates/projects/" + userEmail + "/" + id + "/mediaItems"] = mediaItemsForSaving;
+                    // updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                    // updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media/content"] = basicfirebasecrudservices.transactionsListFull(content);
+                    break;
+
+                default:
+                    console.log("default");
+                    if (Array.isArray(content) && content.length > 0) {
+                        let postObject = {
+                            type: "accountingwithprofitscash",
+                            theme: theme,
+                            title: title,
+                            deleted: false,
+                            content: content,
+                            quizString: quizString,
+                            answer: "",
+                            mediaItems: mediaItemsForSaving,
+                            comment: basicfirebasecrudservices.transactionsListFull(content),
+                            email: email,
+                            user: user,
+                            avatarUrl: avatarUrl,
+                            date: new Intl.DateTimeFormat("ru", {
+                                weekday: "short",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "numeric",
+                            }).format(new Date()), //Date().toJSON()
+                        };
+
+                        let htmlPost = {
+                            id: id + userEmail + "media",
+                            content: basicfirebasecrudservices.transactionsListFull(content),
+                            type: "html",
+                            theme: theme,
+                            title: title + " " + user,
+                            answer: "",
+                            comment: "Проводки",
+                            quizString: "",
+                            deleted: false,
+                            email: email,
+                            user: user,
+                            avatarUrl: avatarUrl,
+                            date: new Intl.DateTimeFormat("ru", {
+                                weekday: "short",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "numeric",
+                            }).format(new Date()), //Date().toJSON()
+                        };
+
+                        updates["/usersCraft/" + userEmail + "/posts/" + id] = postObject;
+                        updates[
+                            "/usersTemplates/projects/" + userEmail + "/" + id
+                        ] = postObject;
+
+                        updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media"] = htmlPost;
+                        updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media"] = htmlPost;
+                    }
             }
-
-
-
-            if (Array.isArray(content) && content.length > 0 && saveOptions?.type !== "spreadsheet" && saveOptions?.type !== "content") {
-                let postObject = {
-                    type: "accountingwithprofitscash",
-                    theme: theme,
-                    title: title,
-                    deleted: false,
-                    content: content,
-                    quizString: quizString,
-                    answer: "",
-                    mediaItems: mediaItemsForSaving,
-                    comment: basicfirebasecrudservices.transactionsListFull(content),
-                    email: email,
-                    user: user,
-                    avatarUrl: avatarUrl,
-                    date: new Intl.DateTimeFormat("ru", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                    }).format(new Date()), //Date().toJSON()
-                };
-
-                let htmlPost = {
-                    id: id + userEmail + "media",
-                    content: basicfirebasecrudservices.transactionsListFull(content),
-                    type: "html",
-                    theme: theme,
-                    title: title + " " + user,
-                    answer: "",
-                    comment: "Проводки",
-                    quizString: "",
-                    deleted: false,
-                    email: email,
-                    user: user,
-                    avatarUrl: avatarUrl,
-                    date: new Intl.DateTimeFormat("ru", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "numeric",
-                    }).format(new Date()), //Date().toJSON()
-                };
-
-
-
-
-                let updates = {};
-                updates["/usersCraft/" + userEmail + "/posts/" + id] = postObject;
-                updates[
-                    "/usersTemplates/projects/" + userEmail + "/" + id
-                ] = postObject;
-
-                updates["currentDay/" + currentDay + "/posts/" + id + userEmail + "media"] = htmlPost;
-                updates["/usersCraft/" + userEmail + "/posts/" + id + userEmail + "media"] = htmlPost;
-
-                //   console.log(updates);
-                console.log("Saved")
-
-                return await basicfirebasecrudservices.updateFirebaseNode(updates);
-            }
-            return null
+            console.log(updates)
+            return await basicfirebasecrudservices.updateFirebaseNode(updates);
         }
 
         saveContent().then(() => {
@@ -1591,20 +1566,22 @@ function caseReducer(state = {}, action) {
             return basicfirebasecrudservices.produce(state, (draft) => {
                 draft[action.payload.arrayName].splice(action.payload.itemIndex, 1);
                 draft.triggerRerender = action.payload.itemIndex;
+                draft.triggerSave = Math.random();
+                draft.saveOptions = { type: "content" };
             });
         }
 
         case "DELETE_FROM_ARRAY_BY_ID": {
             return basicfirebasecrudservices.produce(state, (draft) => {
                 draft[action.payload.arrayName] = draft[action.payload.arrayName].filter(item => item.id !== action.payload.id);
-               // const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.id);
-               // console.log(action.payload);
-               // console.log(index)
-               // if (index !== -1) {
-                  //  draft[action.payload.arrayName].splice(index, 1);
-                    draft.triggerRerender = Math.random();
-                    draft.triggerSave = Math.random();
-                    draft.saveOptions = { type: "content" };
+                // const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.id);
+                // console.log(action.payload);
+                // console.log(index)
+                // if (index !== -1) {
+                //  draft[action.payload.arrayName].splice(index, 1);
+                draft.triggerRerender = Math.random();
+                draft.triggerSave = Math.random();
+                draft.saveOptions = { type: "content" };
                 //}
             });
         }
@@ -1613,7 +1590,11 @@ function caseReducer(state = {}, action) {
             return basicfirebasecrudservices.produce(state, (draft) => {
                 console.log(action.payload);
                 const index = draft[action.payload.arrayName].findIndex(item => item.id === action.payload.item.id);
-                if (index !== -1) draft[action.payload.arrayName][index] = action.payload.item
+                if (index !== -1) {
+                    draft[action.payload.arrayName][index] = action.payload.item;
+                    draft.triggerSave = Math.random();
+                    draft.saveOptions = { type: "content" };
+                }
             });
 
 
@@ -1627,7 +1608,9 @@ function caseReducer(state = {}, action) {
                     draft
                     [action.payload.arrayName]
                     [index]
-                    [action.payload.objKey] = action.payload.objValue
+                    [action.payload.objKey] = action.payload.objValue;
+                    draft.triggerSave = Math.random();
+                    draft.saveOptions = { type: "content" };
                 }
             });
 
@@ -1643,6 +1626,8 @@ function caseReducer(state = {}, action) {
                     }
                 })
                 draft.triggerRerender = action.payload.id;
+                draft.triggerSave = Math.random();
+                draft.saveOptions = { type: "content" };
             });
 
 
@@ -1794,7 +1779,7 @@ function App() {
                 }
 
                 let userprojectpostcontent = !!userprojectpostcontentobject ?
-                 Object.keys(userprojectpostcontentobject).map(objKey => userprojectpostcontentobject[objKey]): [];
+                    Object.keys(userprojectpostcontentobject).map(objKey => userprojectpostcontentobject[objKey]) : [];
 
                 let periods = [...new Set(userprojectpostcontent.map(item => item.period))];
                 let content = [];
