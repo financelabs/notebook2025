@@ -1,4 +1,3 @@
-
 import { getApps, deleteApp, initializeApp } from "firebase/app";
 import { getDatabase, get, ref, update, push, child } from "firebase/database";
 import { produce } from "immer";
@@ -7,9 +6,11 @@ import saveState from "../../src/utlities/saveState";
 import generateUser from "../../src/utlities/generateUser";
 import createProtoObject from "../../src/utlities/createProtoObject";
 
+import { Button } from "@vkontakte/vkui";
+
 import { createApi } from 'unsplash-js';
 
-console.log("unbundledbasicfirebasecrudservices");
+console.log("vkeconolabsoriginallibrary");
 
 // console.log(window.formulaParser);
 
@@ -433,7 +434,8 @@ let basicfirebasecrudservices = Object.assign({},
     generateUser: generateUser,
     createProtoObject: createProtoObject,
     transactionsListFull: transactionsListFull,
-    createApi: createApi
+    createApi: createApi,
+    Button: Button
   })
 
 export default basicfirebasecrudservices

@@ -1,11 +1,11 @@
 import React from "react";
 //import { useInView } from 'react-intersection-observer';
-import useMedia from "../hooks/useMedia";
+import useMedia from "../hooks/useMedia.js";
 
 
 import Alert from "react-bootstrap/Alert";
 
-import ApexEmptyOptionsChartLazy from "./lazy/ApexEmptyOptionsChartLazy.js"
+import ApexEmptyOptionsChartLazy from "./lazy/ApexEmptyOptionsChartLazy.jsx"
 
 //const ApexEmptyOptionsChartLazy = React.lazy(() => import("./lazy/ApexEmptyOptionsChartLazy.js"))
 

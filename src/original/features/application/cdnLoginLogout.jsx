@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-//import Unsplash, { toJson } from "unsplash-js";
-import { createApi } from 'unsplash-js';
-
-import { useForm } from "react-hook-form";
-
-import Modal from "react-bootstrap/Modal";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Image from "react-bootstrap/Image";
-
-import InputGroup from "react-bootstrap/InputGroup";
-import FormControl from "react-bootstrap/FormControl";
-import Button from "react-bootstrap/Button";
-
-//import Media from "react-bootstrap/Media";
-
+let { useSelector, useDispatch } = ReactRedux;
+let { useState } = React;
+let { Modal, Container, Row, Form, InputGroup, Button, Col, Image, FormControl } = ReactBootstrap;
 
 import {
     selectApplication, set_user_profile, setUserProfile
-} from "./applicationSlice";
+} from "./cdnApplicationSlice";
+
+//import Unsplash, { toJson } from "unsplash-js";
+
 
 //https://unsplash.com/collections/aH98dheb50M/avatars
 
@@ -28,7 +15,7 @@ function SearchPhotos(props) {
     const [query, setQuery] = useState("");
     const [pics, setPics] = useState([]);
 
-    const unsplash = createApi({ accessKey: "NhcRJz0lTzcxiZusH5ss4Up8-hBz5DTED3UE8rLCjbo" });
+    const unsplash = basicfirebasecrudservices.createApi({ accessKey: "NhcRJz0lTzcxiZusH5ss4Up8-hBz5DTED3UE8rLCjbo" });
 
     // const unsplash = new Unsplash({ accessKey: "NhcRJz0lTzcxiZusH5ss4Up8-hBz5DTED3UE8rLCjbo" });
 
@@ -111,10 +98,10 @@ function LoginLogout({ screenSize = "large" }) {
     const user_profile = useSelector(selectApplication);
     const [unsplashPic, setUnsplashPic] = useState(null);
     const dispatch = useDispatch();
-    const [modalShow, setModalShow] = useState(false);
+  //  const [modalShow, setModalShow] = useState(false);
 
     // const applicationSelector = useContext(ApplicationContext);
-    // const [show, setShow] = useState(false);
+     const [show, setShow] = useState(false);
 
     let user = user_profile.user?.user;
     let email = user_profile.user?.email;
@@ -137,7 +124,7 @@ function LoginLogout({ screenSize = "large" }) {
                 user: e.currentTarget.elements.formUser.value,
                 avatarUrl: "../freelancer.jpg",
             }));
-        setTimeout(function () { setModalShow(false) }, 1000);
+        setTimeout(function () { setShow(false) }, 1000);
         setUnsplashPic(null)
 
 
@@ -160,13 +147,13 @@ function LoginLogout({ screenSize = "large" }) {
 
     return (
         <>
-            <span onClick={() => setModalShow(true)} style={{ marginRight: "1rem" }}>
+            <span onClick={() => handleShow()} style={{ marginRight: "1rem" }}>
                 {!!user_profile?.user && user_profile.user.length > 0 ? user_profile.user : 'Anonymous'}
             </span>
-
-            {/* <Button variant="primary" onClick={handleShow}>
+{/* 
+             <Button variant="primary" onClick={handleShow}>
           Launch demo modal
-        </Button> */}
+        </Button>  */}
 
             <Modal
                 size="lg"

@@ -1,13 +1,10 @@
-
 import { getApps, deleteApp, initializeApp } from "firebase/app";
 import { getDatabase, get, ref, update, push, child } from "firebase/database";
 import { produce } from "immer";
 
 import saveState from "../../src/utlities/saveState";
 import generateUser from "../../src/utlities/generateUser";
-import createProtoObject from "../../src/utlities/createProtoObject";
-
-import { createApi } from 'unsplash-js';
+import createProtoObject from "../../src/utlities/createProtoObject"
 
 console.log("unbundledbasicfirebasecrudservices");
 
@@ -432,8 +429,7 @@ let basicfirebasecrudservices = Object.assign({},
     saveState: saveState,
     generateUser: generateUser,
     createProtoObject: createProtoObject,
-    transactionsListFull: transactionsListFull,
-    createApi: createApi
+    transactionsListFull: transactionsListFull
   })
 
 export default basicfirebasecrudservices

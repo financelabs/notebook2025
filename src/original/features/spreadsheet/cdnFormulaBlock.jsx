@@ -1,31 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import Button from "react-bootstrap/Button";
 
+let { useSelector, useDispatch } = ReactRedux;
+let { useState } = React;
+let { Button } = ReactBootstrap;
 
 import {
-  // selectSpreadsheetValue,
-  selectSpreadsheetProtoData,
-  selectSpreadsheetData,
+
   selectSpreadsheetFormulaValue,
   selectSpreadsheetFormulaRowIndex,
   selectSpreadsheetFormulaColumnIndex,
-  add_row_under,
-  add_row_before,
-  delete_row,
-  add_column_after,
-  add_column_before,
-  delete_column,
-  update_formula,
   update_data,
-  selectSpreadsheetTitle,
-  new_empty_spreadsheet,
-  load_data,
-  createProtoArray,
-  createProtoObject,
-  //toggle_expand_view,
-  //selectSpreadsheetExpand
-} from "./spreadsheetSlice";
+
+} from "./cdnSpreadsheetSlice";
 
 
 function FormulaBlock() {

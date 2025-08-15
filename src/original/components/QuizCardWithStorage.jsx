@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { selectApplication } from "../features/application/applicationSlice";
-import { setObjectKeyValue } from "../features/case/caseSlice"
+import { selectApplication } from "../features/application/applicationSlice.js";
+import { setObjectKeyValue } from "../features/case/caseSlice.js"
 
 import parse from 'html-react-parser';
 
-import ApexEmptyOptionsChart from "../mediatemplates/ApexEmptyOptionsChart.js";
+import ApexEmptyOptionsChart from "../mediatemplates/ApexEmptyOptionsChart.jsx";
 //import ScatterChartAbstractBetaCases from "../laboratory/ScatterChartAbstractBetaCases.js";
 
 import Card from "react-bootstrap/Card";
@@ -16,10 +16,10 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Navbar from "react-bootstrap/Navbar";
 import Pagination from "react-bootstrap/Pagination";
 
-import MultipleChoicesQuiz from "./MultipleChoicesQuiz.js";
-import QuizWithRandomNumber from "./QuizWithRandomNumber.js";
-import CaseWithRandomNumber from "../../laboratory/CaseWithRandomNumber.js";
-import CaseAccountingWithTasks from "../../laboratory/CaseAccountingWithTasks.js"
+import MultipleChoicesQuiz from "./MultipleChoicesQuiz.jsx";
+import QuizWithRandomNumber from "./QuizWithRandomNumber.jsx";
+// import CaseWithRandomNumber from "../../laboratory/CaseWithRandomNumber.jsx";
+// import CaseAccountingWithTasks from "../../laboratory/CaseAccountingWithTasks.jsx"
 
 
 
@@ -27,7 +27,7 @@ import calculateRandomNumber from "../../utlities/calculateRandomNumber.js";
 import shuffle from "../../utlities/shuffle.js";
 
 
-import * as qSets from "../laboratory/quizesSets";
+import * as qSets from "../laboratory/quizesSets.js";
 
 
 // function GetChartForQuiz({ laboratoryChart }) {
@@ -299,16 +299,14 @@ function SingleQuizCardWithStorage(props) {
 
   let randomNumber = Math.random() * 10;
 
-  if (props.type === "accountingwithprofitscash") {
-    return <CaseAccountingWithTasks {...props} randomNumber={randomNumber}
-    />;
-  }
+  // if (props.type === "accountingwithprofitscash") {
+  //   return <CaseAccountingWithTasks {...props} randomNumber={randomNumber}
+  //   />;
+  // }
 
-
-
-  if (props.type === "casewithrandomnumber") {
-    return <CaseWithRandomNumber {...props} randomNumber={randomNumber} />;
-  }
+  // if (props.type === "casewithrandomnumber") {
+  //   return <CaseWithRandomNumber {...props} randomNumber={randomNumber} />;
+  // }
 
 
   if (props.text.includes("{=")) {

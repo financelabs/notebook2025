@@ -33,15 +33,15 @@ let store = configureStore({
     // devTools: true,
   });
 
-  store.subscribe(throttle(() => {
-    saveState({
+  // store.subscribe(throttle(() => {
+  //   saveState({
   //    posts: [],
   //    data: store.getState().data,
-      application: store.getState().application,
-      spreadsheet: store.getState().spreadsheet
-    });
-  }, 10000
-  ))
+  //     application: store.getState().application,
+  //     spreadsheet: store.getState().spreadsheet
+  //   });
+  // }, 10000
+  // ))
   
   const saveState = (state) => {
     try {
@@ -63,6 +63,7 @@ function ReduxStoreProvider({children}) {
   </React.StrictMode>
 }
 
+export { store }
 export default  ReduxStoreProvider
 
 

@@ -2022,11 +2022,11 @@ function App() {
     if (state.loading) { return null }
 
 
-    return <ApplicationContext.Provider value={state}>
-        <ApplicationDispatchContext.Provider value={applicationDispatch}>
+    return <ApplicationContext.Provider value={state} displayName="ApplicationContext">
+        <ApplicationDispatchContext.Provider value={applicationDispatch} displayName="ApplicationDispatchContext">
 
 
-            <SpreadsheetContext.Provider value={spreadsheetState}>
+            <SpreadsheetContext.Provider value={spreadsheetState} displayName="SpreadsheetContext">
                 <SpreadsheetDispatchContext.Provider value={spreadsheetDispatch}>
                     <ProjectContext.Provider value={projectState}>
                         <ProjectDispatchContext.Provider value={projectDispatch}>
@@ -3195,4 +3195,8 @@ function RecordDragAndDrop() {
 
     </Container>
 }
+
+
+
+
 

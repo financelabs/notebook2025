@@ -4,9 +4,9 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-import { MediaItems } from "./ShowMedia.js";
+import { MediaItems } from "./ShowMedia.jsx";
 
-import ApexEmptyOptionsChart from "./ApexEmptyOptionsChart.js";
+import ApexEmptyOptionsChart from "./ApexEmptyOptionsChart.jsx";
 
 
 function AccountingWithProfitsCash(props) {

@@ -1,23 +1,22 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
-import replace from '@rollup/plugin-replace';
-import mdx from '@mdx-js/rollup';
-import remarkGfm from 'remark-gfm';
+//import replace from '@rollup/plugin-replace';
+//import mdx from '@mdx-js/rollup';
+// import remarkGfm from 'remark-gfm';
 //import rehypeKatex from 'rehype-katex';
-import addClasses from 'rehype-add-classes';
-import remarkCard from "remark-card";
-import remarkDirective from "remark-directive";
+// import addClasses from 'rehype-add-classes';
+//import remarkCard from "remark-card";
+// import remarkDirective from "remark-directive";
 //import postcss from 'rollup-plugin-postcss';
-import external from 'rollup-plugin-peer-deps-external';
-import terser from '@rollup/plugin-terser';
+ import external from 'rollup-plugin-peer-deps-external';
+ import terser from '@rollup/plugin-terser';
 import typescript from "@rollup/plugin-typescript";
-import jsx from 'acorn-jsx';
-import cleanup from 'rollup-plugin-cleanup';
-import injectProcessEnv from 'rollup-plugin-inject-process-env';
+// import jsx from 'acorn-jsx';
+// import cleanup from 'rollup-plugin-cleanup';
+ import injectProcessEnv from 'rollup-plugin-inject-process-env';
 //import dts from "rollup-plugin-dts";
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
-
+//import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import resolve from '@rollup/plugin-node-resolve';
 
 
@@ -30,14 +29,18 @@ import resolve from '@rollup/plugin-node-resolve';
 
 export default [
 
-      {
-      input: "src/utlities/unbundledbasicfirebasecrudservices.js",
+         {
+      input: "src/esbuilds/vkeconolabsoriginallibrary.js",
       output: [
          {
-            file: 'src/cdnreact/dist/basicfirebasecrudservices.js',
+            file: 'econolabs/dist/vkeconolabsoriginallibrary.js',
             format: 'umd',
-            name: "basicfirebasecrudservices",
+            name: "vkeconolabsoriginallibrary",
             sourcemap: true,
+             globals: {
+                'react': 'React',
+                'react/jsx-runtime' : "jsxRuntime"
+             },
          },
       ],
       plugins: [
@@ -48,38 +51,131 @@ export default [
          babel({
             babelHelpers: 'bundled',
             exclude: 'node_modules/**',
-            //    presets: [['@babel/preset-react', { "runtime": "classic" }]],
+             presets: [['@babel/preset-react', { "runtime": "classic" }]],
             extensions: ['.js', '.jsx']
          }),
+         external(),
          resolve({ extensions: ['.js', '.jsx'] }),
-
-           terser()
+         terser()
       ],
-
+       external: ['redux', 'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client'],
    },
 
-        {
-      input: 'src/econolabs/bookkeeping/index.jsx',
-      output: {
-         file: 'econolabs/bookkeeping/allinonebookkeeping.js',
-         format: 'iife'
-      },
-      plugins: [
-         nodeResolve({
-            extensions: ['.js', '.jsx']
-         }),
-         babel({
-            babelHelpers: 'bundled',
-            presets: ['@babel/preset-react'],
-            extensions: ['.js', '.jsx']
-         }),
-         commonjs(),
-         replace({
-            preventAssignment: false,
-            'process.env.NODE_ENV': '"development"'
-         })
-      ]
-   },
+
+
+   //    {
+   //    input: "src/utlities/unbundledbasicfirebasecrudservices.js",
+   //    output: [
+   //       {
+   //          file: 'built/basicfirebasecrudservices.js',
+   //          format: 'umd',
+   //          name: "basicfirebasecrudservices",
+   //          sourcemap: true,
+   //       },
+   //    ],
+   //    plugins: [
+   //       injectProcessEnv({
+   //          NODE_ENV: 'production' // 'production'
+   //       }),
+   //       commonjs(),
+   //       babel({
+   //          babelHelpers: 'bundled',
+   //          exclude: 'node_modules/**',
+   //          //    presets: [['@babel/preset-react', { "runtime": "classic" }]],
+   //          extensions: ['.js', '.jsx']
+   //       }),
+   //       resolve({ extensions: ['.js', '.jsx'] }),
+   //       terser()
+   //    ],
+   // },
+
+
+   // {
+   //    input: 'src/ts/reactexample1.jsx',
+   //    bundle: true,
+   //    minify: true,
+   //    sourcemap: true,
+   //    target: ['chrome58', 'firefox57', 'safari11', 'edge16'],
+   //    outfile: 'built/reactexample1.js',
+   // },
+
+   // {
+   //    input: "src/ts/reactexample1.jsx",
+   //    bundle: true,
+   //    output: [
+   //       {
+   //          file: 'built/reactexample1.js',
+            //  format: 'umd',
+      //       name: "reactexample1",
+      //       sourcemap: true,
+      //    },
+      // ],
+      //   plugins: [
+      //  nodeResolve(),
+      // babel({
+      //    exclude: 'node_modules/**',
+      //    presets: [
+      //       '@babel/preset-react', {
+      //          "runtime": "classic"
+      //        },
+      //      '@babel/preset-typescript'
+      //   ]
+      // }),
+      //   commonjs(),
+      //   typescript({ tsconfig: './tsconfig.json' })
+      //  ],
+//   },
+
+   // {
+   //    input: "src/utlities/unbundledbasicfirebasecrudservices.js",
+   //    output: [
+   //       {
+   //          file: 'src/cdnreact/dist/basicfirebasecrudservices.js',
+   //          format: 'umd',
+   //          name: "basicfirebasecrudservices",
+   //          sourcemap: true,
+   //       },
+   //    ],
+   //    plugins: [
+   //       injectProcessEnv({
+   //          NODE_ENV: 'production' // 'production'
+   //       }),
+   //       commonjs(),
+   //       babel({
+   //          babelHelpers: 'bundled',
+   //          exclude: 'node_modules/**',
+   //          //    presets: [['@babel/preset-react', { "runtime": "classic" }]],
+   //          extensions: ['.js', '.jsx']
+   //       }),
+   //       resolve({ extensions: ['.js', '.jsx'] }),
+
+   //       terser()
+   //    ],
+
+   // },
+
+   // {
+   //    input: 'src/econolabs/bookkeeping/index.jsx',
+   //    output: {
+   //       file: 'econolabs/bookkeeping/allinonebookkeeping.js',
+   //       format: 'iife'
+   //    },
+   //    plugins: [
+   //       nodeResolve({
+   //          extensions: ['.js', '.jsx']
+   //       }),
+   //       babel({
+   //          babelHelpers: 'bundled',
+   //          presets: ['@babel/preset-react'],
+   //          extensions: ['.js', '.jsx']
+   //       }),
+   //       commonjs(),
+   //       replace({
+   //          preventAssignment: false,
+   //          'process.env.NODE_ENV': '"development"'
+   //       })
+   //    ]
+   // },
 
 
    //          {
@@ -106,7 +202,7 @@ export default [
    // },
 
 
-    
+
 
 
 
@@ -205,7 +301,7 @@ export default [
    //    ]
    // },
 
-   
+
 
 
 
@@ -232,7 +328,7 @@ export default [
    //    ]
    // },
 
-   
+
 
 
    // {
@@ -283,7 +379,6 @@ export default [
    // },
 
 
-   
 
 
 
@@ -292,7 +387,8 @@ export default [
 
 
 
-   
+
+
 
    // {
    //    input: "econolabs/quiz/unbundledeconolabsreactcomponents.js",

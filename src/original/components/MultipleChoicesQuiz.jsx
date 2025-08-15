@@ -21,19 +21,17 @@ import { selectApplication } from "../features/application/applicationSlice";
 
 
 function MultipleChoicesQuiz(props) {
-  const [show, setShow] = useState(false);
   const [showAnswer, setShowAnswer] = useState(null);
   const [answerIsRight, setAnswerIsRight] = useState(null);
   const [value, setValue] = useState("");
 
-  const dispatch = useDispatch();
+//  const dispatch = useDispatch();
   // const content = useSelector(selectSpreadsheetProtoData);
   const email = useSelector(selectApplication).email;
   const user = useSelector(selectApplication).user;
   const avatarUrl = useSelector(selectApplication)?.avatarUrl;
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+
 
   function handleCheckboxChange(event) {
     // console.log(event.target.id);
@@ -93,7 +91,7 @@ function MultipleChoicesQuiz(props) {
           timestamp: +Date.now(),
         };
 
-        dispatch(createPost(postObject));
+     //   dispatch(createPost(postObject));
         var updates = {};
         updates["/usersCraft/" + userEmail + "/posts/" + idPost] = postObject;
         updates[
@@ -163,54 +161,7 @@ function MultipleChoicesQuiz(props) {
 
         </InputGroup>
       </Card>
-      <Modal show={show} onHide={handleClose} size="xl" scrollable centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{props.title}</Modal.Title>
-        </Modal.Header>
-        <Card.Body>
-          <Card.Title> {props.title}</Card.Title>
-          <Card.Text>{parse(props.text)}</Card.Text>
-          <Card.Text>
-            {/* <ReactMarkdown source={props.text} escapeHtml={false} /> */}
-            {props.choices.map((item, index) => (
-              <Form.Group controlId={"formBasicCheckbox" + index} key={index}>
-                <Form.Check
-                  type="checkbox"
-                  label={item}
-                  onChange={handleCheckboxChange}
-                  name={item}
-                />
-              </Form.Group>
-            ))}
-          </Card.Text>
-        </Card.Body>
-        <InputGroup size="sm" style={{ width: "95%", margin: "1rem" }}>
 
-          {showAnswer ? (
-            <div>
-              <InputGroup.Text id="basic-addon1">
-                <span
-                  className={answerIsRight ? "text-success text-break" : "text-danger text-break"}
-                >
-                  Правильный ответ: {props.answers[0]}
-                </span>
-              </InputGroup.Text>
-              {!!props?.hint ? (
-                <div className="text-secondary ml-3 mb-2 text-break">
-                  {parse(props.hint)}
-                </div>
-              ) : // <ReactMarkdown source={props.hint} escapeHtml={false} /></div>
-                null}
-            </div>
-          ) : (
-            <Button variant="outline-secondary" onClick={handleCheckAnswer}>
-              Ответ
-            </Button>
-          )}
-
-        </InputGroup>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
     </>
   );
 }
