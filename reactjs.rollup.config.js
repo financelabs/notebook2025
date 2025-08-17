@@ -9,12 +9,12 @@ import babel from '@rollup/plugin-babel';
 //import remarkCard from "remark-card";
 // import remarkDirective from "remark-directive";
 //import postcss from 'rollup-plugin-postcss';
- import external from 'rollup-plugin-peer-deps-external';
- import terser from '@rollup/plugin-terser';
+import external from 'rollup-plugin-peer-deps-external';
+import terser from '@rollup/plugin-terser';
 import typescript from "@rollup/plugin-typescript";
-// import jsx from 'acorn-jsx';
+import jsx from 'acorn-jsx';
 // import cleanup from 'rollup-plugin-cleanup';
- import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import injectProcessEnv from 'rollup-plugin-inject-process-env';
 //import dts from "rollup-plugin-dts";
 //import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import resolve from '@rollup/plugin-node-resolve';
@@ -29,37 +29,21 @@ import resolve from '@rollup/plugin-node-resolve';
 
 export default [
 
-         {
-      input: "src/esbuilds/vkeconolabsoriginallibrary.js",
+   {
+      input: "src/utlities/conter.tsx",
       output: [
          {
-            file: 'econolabs/dist/vkeconolabsoriginallibrary.js',
-            format: 'umd',
-            name: "vkeconolabsoriginallibrary",
+            file: 'econolabs/dist/conter.js',
+            //  format: 'iief',
+            name: "conter",
             sourcemap: true,
-             globals: {
-                'react': 'React',
-                'react/jsx-runtime' : "jsxRuntime"
-             },
          },
       ],
-      plugins: [
-         injectProcessEnv({
-            NODE_ENV: 'production' // 'production'
-         }),
-         commonjs(),
-         babel({
-            babelHelpers: 'bundled',
-            exclude: 'node_modules/**',
-             presets: [['@babel/preset-react', { "runtime": "classic" }]],
-            extensions: ['.js', '.jsx']
-         }),
-         external(),
-         resolve({ extensions: ['.js', '.jsx'] }),
-         terser()
-      ],
-       external: ['redux', 'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client'],
+      acornInjectPlugins: [jsx()],
+      plugins: [typescript({ compilerOptions: { jsx: 'preserve' } })]
    },
+
+
 
 
 
@@ -105,26 +89,26 @@ export default [
    //    output: [
    //       {
    //          file: 'built/reactexample1.js',
-            //  format: 'umd',
-      //       name: "reactexample1",
-      //       sourcemap: true,
-      //    },
-      // ],
-      //   plugins: [
-      //  nodeResolve(),
-      // babel({
-      //    exclude: 'node_modules/**',
-      //    presets: [
-      //       '@babel/preset-react', {
-      //          "runtime": "classic"
-      //        },
-      //      '@babel/preset-typescript'
-      //   ]
-      // }),
-      //   commonjs(),
-      //   typescript({ tsconfig: './tsconfig.json' })
-      //  ],
-//   },
+   //  format: 'umd',
+   //       name: "reactexample1",
+   //       sourcemap: true,
+   //    },
+   // ],
+   //   plugins: [
+   //  nodeResolve(),
+   // babel({
+   //    exclude: 'node_modules/**',
+   //    presets: [
+   //       '@babel/preset-react', {
+   //          "runtime": "classic"
+   //        },
+   //      '@babel/preset-typescript'
+   //   ]
+   // }),
+   //   commonjs(),
+   //   typescript({ tsconfig: './tsconfig.json' })
+   //  ],
+   //   },
 
    // {
    //    input: "src/utlities/unbundledbasicfirebasecrudservices.js",
