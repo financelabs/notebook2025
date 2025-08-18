@@ -1,4 +1,5 @@
-import React, { useState} from 'react';
+ import { default as React } from "react";
+ import { default as ReactDOM } from "react-dom/client";
 // Define the shape of the props for the Counter component
 interface CounterProps {
   initialValue?: number; // Optional initial value for the counter
@@ -28,4 +29,7 @@ const Counter: React.FC<CounterProps> = ({ initialValue = 0 }) => {
   );
 };
 
-export default Counter;
+
+
+
+ReactDOM.createRoot(document.querySelector("#root")).render(<Counter />);

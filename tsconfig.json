@@ -1,4 +1,17 @@
+
+{
+      "compilerOptions": {
+        "strict": true,
+        "target": "ES2020",
+        "module": "NodeNext",
+        "noEmitOnError": true,
+        "jsx":"react",
+        "esModuleInterop": true // Ensure this is enabled
+      },
+      "include": ["src/ts/*.tsx"]
+    }
 // {
+
 //   "compilerOptions": {
 //     "outDir": "esbuilds",
 //     "allowJs": true,
